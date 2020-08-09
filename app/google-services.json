@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "676570393770",
+    "firebase_url": "https://madras-market-delivery-app.firebaseio.com",
+    "project_id": "madras-market-delivery-app",
+    "storage_bucket": "madras-market-delivery-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:676570393770:android:4550f7d747ccaf0d8b34d3",
+        "android_client_info": {
+          "package_name": "deliveryapp.saalventure.madrasmarket"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "676570393770-bgm9ii5mo751ubidh4utq1jpooieleml.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "deliveryapp.saalventure.madrasmarket",
+            "certificate_hash": "793b0dbf07219607ac59ab1cd6f9b2ad4675f305"
+          }
+        },
+        {
+          "client_id": "676570393770-ah2phj7mt52j6f9kl2bc84u0ui7ti5se.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG7ZzJbExD3VgXiXoZrpV8K_0cVVGUJE0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "676570393770-ah2phj7mt52j6f9kl2bc84u0ui7ti5se.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
