@@ -81,7 +81,11 @@ public class LogInActivity extends AppCompatActivity {
                     Toast.makeText(LogInActivity.this, "Please enter valid Password", Toast.LENGTH_SHORT).show();
                 } else {
                     progressDialog.show();
-                    makeLoginRequest();
+                    try {
+                        makeLoginRequest();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
                 }
             }
@@ -91,30 +95,36 @@ public class LogInActivity extends AppCompatActivity {
     }
 
 
-    private void makeLoginRequest() {
+    private void makeLoginRequest() throws JSONException {
         progressDialog.show();
         final String UserName = Et_login_email.getText().toString().trim();
         final String UserPasswrd = et_login_pass.getText().toString().trim();
-
-        JsonObjectRequest  stringRequest = new JsonObjectRequest(Request.Method.POST, dLogin,null, new Response.Listener<JSONObject>() {
+        JSONObject params = new JSONObject();
+        params.put("phone_number", UserName);
+        params.put("password", UserPasswrd);
+        JsonObjectRequest  stringRequest = new JsonObjectRequest(Request.Method.POST,
+                "https://madrasmarketplaceapi.azurewebsites.net/deliveryBoy/validateLogin",
+                params
+                , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("Login", response.toString());
 
                 try {
-                    JSONObject jsonObject = new JSONObject(response.toString());
-                    String status = jsonObject.getString("status");
-                    String msg = jsonObject.getString("message");
-                    if (status.equals("1")) {
-                        JSONArray jsonArray = jsonObject.getJSONArray("data");
-                        for (int i = 0; i < jsonArray.length(); i++) {
 
-                            JSONObject obj = jsonArray.getJSONObject(i);
+//                    String msg = jsonObject.getString("message");
+                    if (!response.equals("")) {
+                        JSONObject jsonObject = new JSONObject(response.toString());
+                        String status = jsonObject.getString("status");
+//                        JSONArray jsonArray = jsonObject.getJSONArray("data");
+//                        for (int i = 0; i < jsonArray.length(); i++) {
 
-                            String user_id = obj.getString("dboy_id");
-                            String user_fullname = obj.getString("boy_name");
-                            String phoenNo = obj.getString("boy_phone");
-                            String user_password = obj.getString("password");
+//                            JSONObject obj = jsonArray.getJSONObject(i);
+
+                            String user_id = jsonObject.getString("boy_id");
+                            String user_fullname = jsonObject.getString("boy_name");
+                            String phoenNo = jsonObject.getString("phone_number");
+                            String user_password = jsonObject.getString("password");
                             editor.putString("userid", user_id);
                             editor.putString("phoenNo", phoenNo);
                             editor.putString("password", user_password);
@@ -129,7 +139,7 @@ public class LogInActivity extends AppCompatActivity {
                             Btn_Sign_in.setEnabled(false);
                             progressDialog.dismiss();
                             finish();
-                        }
+//                        }
                     } else {
                         progressDialog.dismiss();
                         Btn_Sign_in.setEnabled(true);
@@ -151,38 +161,9 @@ public class LogInActivity extends AppCompatActivity {
         }) {
 
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-//                JSONObject jsonObject = new JSONObject();
-//                try {
-//                    jsonObject.put("phone_number","+91"+UserName);
-//                    jsonObject.put("password",UserPasswrd);
-//                    params.put("params",jsonObject.toString());
-//                    params.put("Content-Type","application/json");
-//                    params.put("Accept","*");
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-
-                params.put("phone", UserName);
-                params.put("password", UserPasswrd);
-//                params.put("device_id", token);
-
-                // Log.d("fgh",UserName);
-                //Log.d("fgh",UserPasswrd);
-                // Log.d("fgh",deviceID);
-                return params;
+            public String getBodyContentType() {
+                return "application/json";
             }
-
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String,String> params = new HashMap<String, String>();
-                params.put("Content-Type","application/json");
-                params.put("Accept","*");
-                return params;
-            }
-
-
         };
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.getCache().clear();

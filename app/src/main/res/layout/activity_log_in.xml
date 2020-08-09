@@ -115,7 +115,7 @@
                     android:layout_marginRight="@dimen/space_12"
                     android:background="@drawable/xml_textbox_bg"
                     android:gravity="left"
-                    android:inputType="textEmailAddress"
+                    android:inputType="textPassword"
                     android:padding="@dimen/space_10"
                     android:textColor="#000"
                     android:textColorHint="@color/dark_gray"
