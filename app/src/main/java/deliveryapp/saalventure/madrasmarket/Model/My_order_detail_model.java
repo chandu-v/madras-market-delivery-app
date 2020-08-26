@@ -54,4 +54,43 @@ public class My_order_detail_model {
         return product_image;
     }
 
+    public void setSale_item_id(String sale_item_id) {
+        this.sale_item_id = sale_item_id;
+    }
+
+    public void setSale_id(String sale_id) {
+        this.sale_id = sale_id;
+    }
+
+    public void setProduct_id(String product_id) {
+        this.product_id = product_id;
+    }
+
+    public void setProduct_name(String product_name) {
+        this.product_name = product_name;
+    }
+
+    public void setQty(String qty) {
+        this.qty = qty;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public void setUnit_value(String unit_value) {
+        this.unit_value = unit_value;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public void setQty_in_kg(String qty_in_kg) {
+        this.qty_in_kg = qty_in_kg;
+    }
+
+    public void setProduct_image(String product_image) {
+        this.product_image = product_image;
+    }
 }

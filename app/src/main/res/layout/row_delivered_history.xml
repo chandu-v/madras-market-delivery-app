@@ -259,7 +259,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_2"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone"
+            >
 
             <deliveryapp.saalventure.madrasmarket.Fonts.LatoBLack
                 android:layout_width="65dp"

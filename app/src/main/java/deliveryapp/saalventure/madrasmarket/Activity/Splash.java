@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
+
 import deliveryapp.saalventure.madrasmarket.MainActivity;
 import deliveryapp.saalventure.madrasmarket.R;
 import deliveryapp.saalventure.madrasmarket.util.Session_management;

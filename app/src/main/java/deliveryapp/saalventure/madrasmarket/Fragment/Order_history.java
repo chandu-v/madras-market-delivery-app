@@ -19,9 +19,11 @@ import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import deliveryapp.saalventure.madrasmarket.Adapter.Delivered_historyAdapter;
 import deliveryapp.saalventure.madrasmarket.Adapter.Delivered_monthly_adapter;
@@ -30,6 +32,7 @@ import deliveryapp.saalventure.madrasmarket.AppController;
 import deliveryapp.saalventure.madrasmarket.Config.BaseURL;
 import deliveryapp.saalventure.madrasmarket.Model.Daily_model;
 import deliveryapp.saalventure.madrasmarket.Model.Monthly_model;
+import deliveryapp.saalventure.madrasmarket.Model.My_order_model;
 import deliveryapp.saalventure.madrasmarket.Model.Weekly_model;
 import deliveryapp.saalventure.madrasmarket.R;
 import deliveryapp.saalventure.madrasmarket.util.CustomVolleyJsonArrayRequest;
@@ -108,7 +111,105 @@ public class Order_history extends Fragment {
     private void getorder_history() {
         progressDialog.show();
         String tag_json_obj = "json_socity_req";
+        HashMap<String, String> param = new HashMap<>();
+        param.put("dboy_id", get_id);
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET,
+                "https://madrasmarketplaceapi.azurewebsites.net/order_master/getAllOrdersByStatusId/2/"+get_id,
+                null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        try {
+                            if (response.length()==0) {
+                                daily_layout.setVisibility(View.GONE);
+//                                Toast.makeText(requireActivity(), "No Today's Order Found!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                for(int i = 0 ; i < response.length() ; i++){
+                                    JSONArray jsonObjects = response.getJSONArray(i);
+                                    String saleid = jsonObjects.get(0).toString();
+                                    String placedon = jsonObjects.get(11).toString().split("T")[0];
+//                                    String timefrom = obj.getString("time_slot");
+                                    String timefrom = jsonObjects.get(11).toString().split("T")[1].split("\\+")[0];
+                                    //  String timeto=obj.getString("delivery_time_from");
+                                    //String item = obj.getString("total_items");
+                                    String ammount = jsonObjects.get(3).toString();
+                                    String status = jsonObjects.get(2).toString();
+                                    String user_address = jsonObjects.get(4).toString()+","+jsonObjects.get(5).toString()+","+jsonObjects.get(6).toString();
+//                                    String store_Address = obj.getString("store_address");
+                                    //  String house = obj.getString("house_no");
+                                    String rename = jsonObjects.get(8).toString();
+                                    String renumber = jsonObjects.get(7).toString();
+                                    String store_name = "";
+                                    String total_items = jsonObjects.get(12).toString()==null?"0":jsonObjects.get(12).toString();
+//                                    String store_lat = obj.getString("store_lat");
+//                                    String store_lng = obj.getString("store_lng");
+//                                    String user_lat = obj.getString("user_lat");
+//                                    String user_lng = obj.getString("user_lng");
+//                                    String dboy_lat = obj.getString("dboy_lat");
+//                                    String dboy_lng = obj.getString("dboy_lng");
+                                    Daily_model my_order_model = new Daily_model();
 
+//                                    My_order_model my_order_model = new My_order_model();
+                                    // my_order_model.setSocityname(society);
+                                    my_order_model.setHouse(user_address);
+                                    my_order_model.setRecivername(rename);
+                                    my_order_model.setRecivermobile(renumber);
+                                    my_order_model.setDelivery_time_from(timefrom);
+                                    my_order_model.setSale_id(saleid);
+                                    my_order_model.setOn_date(placedon);
+                                    my_order_model.setTotal_amount(ammount);
+                                    my_order_model.setStatus(status);
+                                    my_order_model.setStore_name(store_name);
+                                    my_order_model.setTotal_items(total_items);
+//                                    my_order_model.setLat(store_lat);
+//                                    my_order_model.setLng(store_lng);
+//                                    my_order_model.setUserLat(user_lat);
+//                                    my_order_model.setUserLong(user_lng);
+//                                    my_order_model.setDbLat(dboy_lat);
+//                                    my_order_model.setDbuserLong(dboy_lng);
+                                    //   my_order_model.setTotal_items(item);
+                                    // my_order_model.setDelivery_time_to(timefrom);
+                                    daily_modellist.add(my_order_model);
+
+                                    delivered_dailyAdapter = new Delivered_historyAdapter(daily_modellist);
+
+                                    rc_today.setAdapter(delivered_dailyAdapter);
+                                    delivered_dailyAdapter.notifyDataSetChanged();
+                                }
+
+
+                            }
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }finally {
+                            progressDialog.dismiss();
+//                            refresh_layout.setRefreshing(false);
+                        }
+                    }
+                }, error -> {
+            error.printStackTrace();
+        });
+        RequestQueue requestQueue = Volley.newRequestQueue(requireContext());
+        requestQueue.getCache().clear();
+        jsonArrayRequest.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 60000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+
+            }
+        });
+        requestQueue.add(jsonArrayRequest);
         Map<String, String> params = new HashMap<String, String>();
 
         params.put("dboy_id", get_id);
@@ -189,9 +290,9 @@ public class Order_history extends Fragment {
                 return param;
             }
         };
-        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-        requestQueue.getCache().clear();
-        requestQueue.add(jsonObjReq);
+//        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+//        requestQueue.getCache().clear();
+//        requestQueue.add(jsonObjReq);
 
     }
 

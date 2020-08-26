@@ -442,6 +442,40 @@ public class TodayOrder extends Fragment {
 //                    }
 //                });
 
+                holder.view_details.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        if (mList.getStatus().equalsIgnoreCase("Out_For_Delivery")) {
+                            String saleid = modelList.get(position).getSale_id();
+                            String placedon = modelList.get(position).getOn_date();
+                            String time = modelList.get(position).getDelivery_time_from();
+                            String item = modelList.get(position).getTotal_items();
+                            String ammount = modelList.get(position).getTotal_amount();
+                            String ssstatus = modelList.get(position).getStatus();
+                            String society = modelList.get(position).getSocityname();
+                            String house = modelList.get(position).getHouse();
+                            String recivername = modelList.get(position).getRecivername();
+                            String recivermobile = modelList.get(position).getRecivermobile();
+                            String stotreAddr = modelList.get(position).getStore_name();
+                            Intent intent = new Intent(context, OrderDetail.class);
+                            intent.putExtra("sale_id", saleid);
+                            intent.putExtra("placedon", placedon);
+                            intent.putExtra("time", time);
+                            intent.putExtra("item", item);
+                            intent.putExtra("ammount", ammount);
+                            intent.putExtra("status", ssstatus);
+                            intent.putExtra("socity_name", society);
+                            intent.putExtra("house_no", house);
+                            intent.putExtra("receiver_name", recivername);
+                            intent.putExtra("receiver_mobile", recivermobile);
+                            intent.putExtra("storeAddr", stotreAddr);
+                            startActivityForResult(intent, 7);
+                        } else if (mList.getStatus().equalsIgnoreCase("Confirmed")) {
+                            order_OutDelivery(modelList.get(position).getSale_id());
+                        }
+                    }
+                });
                 holder.relativetextstatus.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -613,7 +647,7 @@ public class TodayOrder extends Fragment {
             public TextView tv_orderno, tv_status, tv_date, tv_time, tv_price, tv_item, relativetextstatus, tv_tracking_date, tv_socity,
                     tv_recivername, tv_house, tv_storename;
 
-            Button get_dirc, pickorder;
+            Button get_dirc, pickorder,view_details;
             ImageView call;
             CardView cardView;
 
@@ -636,7 +670,7 @@ public class TodayOrder extends Fragment {
                 call = view.findViewById(R.id.call);
                 pickorder = view.findViewById(R.id.order_picked);
                 cardView = view.findViewById(R.id.card_view);
-
+                view_details = view.findViewById(R.id.view_details);
 
             }
         }

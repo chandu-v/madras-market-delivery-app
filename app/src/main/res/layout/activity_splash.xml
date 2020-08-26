@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white"
     android:gravity="center_vertical"
     android:orientation="vertical"
     android:padding="@dimen/space_10"
     tools:context="deliveryapp.saalventure.madrasmarket.Activity.Splash">
 
-
     <ImageView
 
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/logo">
+        android:layout_height="match_parent"
+        android:src="@drawable/splash"
+        tools:layout_editor_absoluteX="9dp"
+        tools:layout_editor_absoluteY="-78dp">
 
     </ImageView>
 
-</LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -33,6 +33,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -41,6 +42,8 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import deliveryapp.saalventure.madrasmarket.Config.BaseURL;
@@ -114,17 +117,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         sw.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                status("1", true);
+//                status("1", true);
+                updateStatus("1");
                 // The toggle is enabled
             } else {
-                status("0", true);
-
+//                status("0", true);
+                updateStatus("0");
                 // The toggle is disabled
             }
         });
 
-        String check_onoff = sharedPreferences.getString("status", "");
-        status(check_onoff, false);
+        String check_onoff = preferences.getString("status",null);
+
+//        status(check_onoff, false);
 
         if (sessionManagement.isLoggedIn()) {
             if (check_onoff != null) {
@@ -328,7 +333,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             status.setText("Inactive");
                             sw.setChecked(false);
                         }
-                        editor.putString("status", check).apply();
+                        editor.putString("status", check);
+                        editor.apply();
                         Toast.makeText(MainActivity.this, "" + msg, Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
@@ -425,6 +431,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void setTitle(String title) {
         getSupportActionBar().setTitle(title);
+    }
+
+    private void updateStatus(String check){
+        progressDialog.setMessage("Please wait...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+        String url = "https://madrasmarketplaceapi.azurewebsites.net/deliveryBoy/updateStatus/" + userid + "/" + check;
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.i("RESPONSE", response);
+                progressDialog.hide();
+                String value = response;
+                if (value.equalsIgnoreCase("1")) {
+                    if (check.equalsIgnoreCase("1")) {
+                        status.setText("Active");
+                        sw.setChecked(true);
+                    } else {
+                        status.setText("Inactive");
+                        sw.setChecked(false);
+                    }
+                    editor.putString("status", check);
+                    editor.apply();
+//                    Toast.makeText(MainActivity.this, "" + msg, Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.i("RESPONSE",error.getMessage());
+                progressDialog.hide();
+
+            }
+        });
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.getCache().clear();
+        requestQueue.add(stringRequest);
     }
 
     private void getCurrency() {

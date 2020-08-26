@@ -17,21 +17,30 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
+
 import deliveryapp.saalventure.madrasmarket.Adapter.My_order_detail_adapter;
 import deliveryapp.saalventure.madrasmarket.AppController;
 import deliveryapp.saalventure.madrasmarket.Config.BaseURL;
+import deliveryapp.saalventure.madrasmarket.MainActivity;
 import deliveryapp.saalventure.madrasmarket.Model.My_order_detail_model;
 import deliveryapp.saalventure.madrasmarket.R;
 import deliveryapp.saalventure.madrasmarket.util.ConnectivityReceiver;
 import deliveryapp.saalventure.madrasmarket.util.CustomVolleyJsonArrayRequest;
 import deliveryapp.saalventure.madrasmarket.util.Session_management;
+
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -96,13 +105,16 @@ public class OrderDetail extends AppCompatActivity {
         String storeAddr = getIntent().getStringExtra("storeAddr");
         String housne = getIntent().getStringExtra("house_no");
         String receverName = getIntent().getStringExtra("receiver_name");
+        makeGetOrderDetailRequest(sale_id);
+
         Mark_Delivered = (RelativeLayout) findViewById(R.id.btn_mark_delivered);
         Mark_Delivered.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(OrderDetail.this, GetSignature.class);
+                /*Intent intent = new Intent(OrderDetail.this, GetSignature.class);
                 intent.putExtra("sale", sale_id);
-                startActivityForResult(intent, 6);
+                startActivityForResult(intent, 6);*/
+                markAsDelivered(sale_id);
 
             }
         });
@@ -136,25 +148,85 @@ public class OrderDetail extends AppCompatActivity {
 
     }
 
+    private void markAsDelivered(String sale_id) {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                "https://madrasmarketplaceapi.azurewebsites.net/order_master/update/"+sale_id+"/2", new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if(response.equals("1")){
+
+                    Toast.makeText(getApplicationContext(),"Order Marked as Delivered.",Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+
+                }
+            }
+        },error -> {
+            Toast.makeText(getApplicationContext(),error.getMessage(),Toast.LENGTH_LONG).show();
+
+        });
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(stringRequest);
+    }
+
     private void makeGetOrderDetailRequest(String sale_id) {
         String tag_json_obj = "json_order_detail_req";
         Map<String, String> params = new HashMap<String, String>();
         params.put("cart_id", sale_id);
 
-        CustomVolleyJsonArrayRequest jsonObjReq = new CustomVolleyJsonArrayRequest(Request.Method.POST,
-                BaseURL.dOutforDelivery, params, new Response.Listener<JSONArray>() {
+        JsonArrayRequest jsonObjReq = new JsonArrayRequest(Request.Method.GET,
+                "https://madrasmarketplaceapi.azurewebsites.net/order_master/getOrderItemsDetails/" + sale_id, null, new Response.Listener<JSONArray>() {
 
             @Override
             public void onResponse(JSONArray response) {
-                Gson gson = new Gson();
-                Type listType = new TypeToken<List<My_order_detail_model>>() {
-                }.getType();
+//                Gson gson = new Gson();
+//                Type listType = new TypeToken<List<My_order_detail_model>>() {
+//                }.getType();
+//
+//
+                if (response.length() == 0) {
+                    Toast.makeText(OrderDetail.this, getResources().getString(R.string.no_rcord_found), Toast.LENGTH_SHORT).show();
 
-                my_order_detail_modelList = gson.fromJson(response.toString(), listType);
+                }else{
+                    Map<Integer,My_order_detail_model> map = new HashMap<>();
 
-                My_order_detail_adapter adapter = new My_order_detail_adapter(my_order_detail_modelList);
-                rv_detail_order.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
+                    for(int i = 0 ; i < response.length() ; i++){
+                        try {
+                            JSONArray jsonObjects = response.getJSONArray(i);
+                            int product_id = jsonObjects.getInt(0);
+                            String quantity = jsonObjects.getString(1);
+                            int attribute_id = jsonObjects.getInt(2);
+                            String value = jsonObjects.getString(3);
+                            My_order_detail_model my_order_detail_model = new My_order_detail_model();
+
+                            if(map.containsKey(product_id)){
+                                my_order_detail_model = map.get(product_id);
+                            }
+                            switch (attribute_id){
+                                case 0:
+                                    my_order_detail_model.setProduct_name(value);
+                                    break;
+                                case 5:
+                                    my_order_detail_model.setProduct_image(value);
+                                    break;
+                                case 9:
+                                    my_order_detail_model.setQty(value);
+                                    break;
+                            }
+                            my_order_detail_model.setQty(quantity);
+                            map.put(product_id,my_order_detail_model);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+//                    my_order_detail_modelList = gson.fromJson(response.toString(), listType);
+                    my_order_detail_modelList = new ArrayList<>(map.values());
+                    My_order_detail_adapter adapter = new My_order_detail_adapter(my_order_detail_modelList);
+                    rv_detail_order.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                }
 
                 if (my_order_detail_modelList.isEmpty()) {
 //                    Toast.makeText(OrderDetail.this, getResources().getString(R.string.no_rcord_found), Toast.LENGTH_SHORT).show();
@@ -173,7 +245,25 @@ public class OrderDetail extends AppCompatActivity {
 
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(jsonObjReq, tag_json_obj);
-
+//        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//        requestQueue.getCache().clear();
+//        jsonObjReq.setRetryPolicy(new RetryPolicy() {
+//            @Override
+//            public int getCurrentTimeout() {
+//                return 60000;
+//            }
+//
+//            @Override
+//            public int getCurrentRetryCount() {
+//                return 2;
+//            }
+//
+//            @Override
+//            public void retry(VolleyError error) throws VolleyError {
+//
+//            }
+//        });
+//        requestQueue.add(jsonObjReq);
     }
 
     @Override

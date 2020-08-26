@@ -125,10 +125,13 @@ public class LogInActivity extends AppCompatActivity {
                             String user_fullname = jsonObject.getString("boy_name");
                             String phoenNo = jsonObject.getString("phone_number");
                             String user_password = jsonObject.getString("password");
+                            String check = jsonObject.getString("status");
                             editor.putString("userid", user_id);
                             editor.putString("phoenNo", phoenNo);
                             editor.putString("password", user_password);
-                            editor.commit();
+                            editor.putString("status", check).apply();
+
+                        editor.commit();
 
                             Session_management sessionManagement = new Session_management(LogInActivity.this);
                             sessionManagement.createLoginSession(user_id, user_fullname, user_password);

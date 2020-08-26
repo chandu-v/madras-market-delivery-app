@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import deliveryapp.saalventure.madrasmarket.Activity.OrderDetail;
 import deliveryapp.saalventure.madrasmarket.Model.My_order_model;
 import deliveryapp.saalventure.madrasmarket.R;
 
@@ -90,13 +91,13 @@ public class My_Today_Order_Adapter extends RecyclerView.Adapter<My_Today_Order_
                 @Override
                 public void onClick(View view) {
 
-                    if (mList.getStatus().equalsIgnoreCase("Out_For_Delivery")) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/search/?api=1&query=" + mList.getUserLat() + "," + mList.getUserLong()));
-                        context.startActivity(intent);
-                    } else if (mList.getStatus().equalsIgnoreCase("Confirmed")) {
+//                    if (mList.getStatus().equalsIgnoreCase("Out_For_Delivery")) {
+//                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/search/?api=1&query=" + mList.getUserLat() + "," + mList.getUserLong()));
+//                        context.startActivity(intent);
+//                    } else if (mList.getStatus().equalsIgnoreCase("Confirmed")) {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/search/?api=1&query=" + mList.getLat() + "," + mList.getLng()));
                         context.startActivity(intent);
-                    }
+//                    }
 
 
                 }
@@ -122,6 +123,43 @@ public class My_Today_Order_Adapter extends RecyclerView.Adapter<My_Today_Order_
                     }
 
 
+                }
+            });
+
+            holder.view_order.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+//                    if (mList.getStatus().equalsIgnoreCase("Out_For_Delivery")) {
+                        String saleid = modelList.get(position).getSale_id();
+                        String placedon = modelList.get(position).getOn_date();
+                        String time = modelList.get(position).getDelivery_time_from();
+                        String item = modelList.get(position).getTotal_items();
+                        String ammount = modelList.get(position).getTotal_amount();
+                        String ssstatus = modelList.get(position).getStatus();
+                        String society = modelList.get(position).getSocityname();
+                        String house = modelList.get(position).getHouse();
+                        String recivername = modelList.get(position).getRecivername();
+                        String recivermobile = modelList.get(position).getRecivermobile();
+                        String stotreAddr = modelList.get(position).getStore_name();
+                        Intent intent = new Intent(context, OrderDetail.class);
+                        intent.putExtra("sale_id", saleid);
+                        intent.putExtra("placedon", placedon);
+                        intent.putExtra("time", time);
+                        intent.putExtra("item", item);
+                        intent.putExtra("ammount", ammount);
+                        intent.putExtra("status", ssstatus);
+                        intent.putExtra("socity_name", society);
+                        intent.putExtra("house_no", house);
+                        intent.putExtra("receiver_name", recivername);
+                        intent.putExtra("receiver_mobile", recivermobile);
+                        intent.putExtra("storeAddr", stotreAddr);
+                        context.startActivity(intent);
+//                        startActivityForResult(intent, 7);
+//                    }
+//                    else if (mList.getStatus().equalsIgnoreCase("Confirmed")) {
+//                        order_OutDelivery(modelList.get(position).getSale_id());
+//                    }
                 }
             });
 
@@ -168,7 +206,7 @@ public class My_Today_Order_Adapter extends RecyclerView.Adapter<My_Today_Order_
         public TextView tv_orderno, tv_status, tv_date, tv_time, tv_price, tv_item, relativetextstatus, tv_tracking_date, tv_socity,
                 tv_recivername, tv_house, tv_storename,tv_recivernumber;
 
-        Button get_dirc, pickorder;
+        Button get_dirc, pickorder,view_order;
         ImageView call;
         CardView cardView;
 
@@ -192,8 +230,10 @@ public class My_Today_Order_Adapter extends RecyclerView.Adapter<My_Today_Order_
             call = view.findViewById(R.id.call);
             pickorder = view.findViewById(R.id.order_picked);
             cardView = view.findViewById(R.id.card_view);
-
-
+            view_order = view.findViewById(R.id.view_details);
+//            tv_status.setVisibility(View.GONE);
+            get_dirc.setVisibility(View.VISIBLE);
+            relativetextstatus.setVisibility(View.GONE);
         }
     }
 }
